@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.aurorus.seamlesslogin.password.PasswordGenerator;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.aurorus.seamlesslogin.password.PasswordEntry;
@@ -98,6 +99,18 @@ public class AddEditPasswordScreen extends Screen {
                             : "screen.seamlesslogin.show_password"));
                 }
         ).bounds(cx + FIELD_WIDTH / 2 + 4, y + ROW * 2, 50, FIELD_HEIGHT).build());
+
+        // Generate password button
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.generate_password"),
+                btn -> passwordField.setValue(PasswordGenerator.generate())
+        ).bounds(cx + FIELD_WIDTH / 2 + 58, y + ROW * 2, 65, FIELD_HEIGHT).build());
+
+        // Copy password button
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.copy_password"),
+                btn -> minecraft.keyboardHandler.setClipboard(passwordField.getValue())
+        ).bounds(cx + FIELD_WIDTH / 2 + 127, y + ROW * 2, 50, FIELD_HEIGHT).build());
 
         // Auto-login toggle
         addRenderableWidget(Button.builder(

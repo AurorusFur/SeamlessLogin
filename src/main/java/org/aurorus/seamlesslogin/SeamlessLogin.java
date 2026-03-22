@@ -13,7 +13,7 @@ import org.aurorus.seamlesslogin.client.ClientEventHandler;
 import org.aurorus.seamlesslogin.client.KeyBindings;
 import org.aurorus.seamlesslogin.event.AutoLoginHandler;
 import org.aurorus.seamlesslogin.password.PasswordManager;
-import org.aurorus.seamlesslogin.screen.PatternConfigScreen;
+import org.aurorus.seamlesslogin.screen.SeamlessLoginConfigScreen;
 import org.slf4j.Logger;
 
 @Mod(SeamlessLogin.MODID)
@@ -31,7 +31,7 @@ public class SeamlessLogin {
             NeoForge.EVENT_BUS.register(new ClientEventHandler());
             PasswordManager.getInstance();
             modContainer.registerExtensionPoint(IConfigScreenFactory.class,
-                    (container, screen) -> new PatternConfigScreen(screen));
+                    (container, screen) -> new SeamlessLoginConfigScreen(screen));
         }
     }
 }

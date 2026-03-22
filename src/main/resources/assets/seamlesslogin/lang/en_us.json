@@ -35,7 +35,26 @@
   "screen.seamlesslogin.overwrite_title": "Password Already Exists",
   "screen.seamlesslogin.overwrite_message": "A password for %s is already saved.\nDo you want to overwrite it?",
 
+  "screen.seamlesslogin.on": "ON",
+  "screen.seamlesslogin.off": "OFF",
+
+  "screen.seamlesslogin.config_title": "SeamlessLogin",
   "screen.seamlesslogin.login_patterns": "Login Patterns",
+  "screen.seamlesslogin.pwgen_settings": "Password Generation",
+
+  "screen.seamlesslogin.generate_password": "Generate",
+  "screen.seamlesslogin.copy_password": "Copy",
+
+  "screen.seamlesslogin.pwgen_title": "Password Generation",
+  "screen.seamlesslogin.pwgen_passphrase_on":  "Mode: Passphrase",
+  "screen.seamlesslogin.pwgen_passphrase_off": "Mode: Password",
+  "screen.seamlesslogin.pwgen_length": "Length (8–64)",
+  "screen.seamlesslogin.pwgen_length_invalid": "Length must be a number between 8 and 64!",
+  "screen.seamlesslogin.pwgen_words": "Word count (3–8)",
+  "screen.seamlesslogin.pwgen_words_invalid": "Word count must be a number between 3 and 8!",
+  "screen.seamlesslogin.pwgen_caps": "Capital Letters",
+  "screen.seamlesslogin.pwgen_numbers": "Numbers",
+  "screen.seamlesslogin.pwgen_special": "Special Characters",
 
   "screen.seamlesslogin.patterns_title": "SeamlessLogin - Login Patterns",
   "screen.seamlesslogin.no_patterns": "No patterns configured. Press \"Add New\" to add one.",
