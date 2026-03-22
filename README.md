@@ -1,5 +1,10 @@
 # SeamlessLogin
 
+[![Build](https://github.com/AurorusFur/SeamlessLogin/actions/workflows/build.yml/badge.svg)](https://github.com/AurorusFur/SeamlessLogin/actions/workflows/build.yml)
+[![Version](https://img.shields.io/badge/version-1.0--SNAPSHOT-blue)](https://github.com/AurorusFur/SeamlessLogin)
+[![NeoForge](https://img.shields.io/badge/NeoForge-21.8.52-E04E14?logo=neoforge)](https://neoforged.net)
+[![Modrinth](https://img.shields.io/badge/Modrinth-seamlesslogin-00AF5C?logo=modrinth)](https://modrinth.com/mod/seamlesslogin)
+
 A NeoForge client-side mod for Minecraft 1.21.8 that automatically logs you in to offline-mode servers.
 
 ## Screenshots
