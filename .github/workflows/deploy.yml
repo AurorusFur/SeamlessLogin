@@ -29,11 +29,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
 
       - name: Build
-        run: |
-          chmod +x gradlew
-          ./gradlew build -Pmod_version=${{ inputs.version }}
+        run: gradle build -Pmod_version=${{ inputs.version }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
