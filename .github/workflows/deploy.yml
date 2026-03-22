@@ -31,7 +31,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        run: ./gradlew build -Pmod_version=${{ inputs.version }}
+        run: |
+          chmod +x gradlew
+          ./gradlew build -Pmod_version=${{ inputs.version }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
