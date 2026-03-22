@@ -1,8 +1,8 @@
 package org.aurorus.seamlesslogin.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.aurorus.seamlesslogin.Config;
@@ -10,7 +10,6 @@ import org.aurorus.seamlesslogin.Config;
 public class PasswordGenConfigScreen extends Screen {
     private final Screen previousScreen;
 
-    // Local state
     private boolean passphrase;
     private int length;
     private int wordCount;
@@ -18,9 +17,8 @@ public class PasswordGenConfigScreen extends Screen {
     private boolean numbers;
     private boolean special;
 
-    private EditBox lengthField;
-    private EditBox wordCountField;
-    private Component errorMessage;
+    private AbstractSliderButton lengthSlider;
+    private AbstractSliderButton wordCountSlider;
 
     private static final int FIELD_WIDTH  = 200;
     private static final int FIELD_HEIGHT = 20;
@@ -29,7 +27,6 @@ public class PasswordGenConfigScreen extends Screen {
     public PasswordGenConfigScreen(Screen previousScreen) {
         super(Component.translatable("screen.seamlesslogin.pwgen_title"));
         this.previousScreen = previousScreen;
-        // Load current config values as initial state
         this.passphrase = Config.usePassphrase;
         this.length     = Config.passwordLength;
         this.wordCount  = Config.passphraseWordCount;
@@ -53,21 +50,37 @@ public class PasswordGenConfigScreen extends Screen {
                 }
         ).bounds(cx - FIELD_WIDTH / 2, y, FIELD_WIDTH, FIELD_HEIGHT).build());
 
-        // Password length
-        lengthField = new EditBox(font, cx + 4, y + ROW, 60, FIELD_HEIGHT,
-                Component.translatable("screen.seamlesslogin.pwgen_length"));
-        lengthField.setMaxLength(2);
-        lengthField.setValue(String.valueOf(length));
-        lengthField.setFilter(s -> s.isEmpty() || s.matches("\\d+"));
-        addRenderableWidget(lengthField);
+        // Password length slider (8–64)
+        lengthSlider = new AbstractSliderButton(cx - FIELD_WIDTH / 2, y + ROW, FIELD_WIDTH, FIELD_HEIGHT,
+                Component.translatable("screen.seamlesslogin.pwgen_length").append(": " + length),
+                (length - 8.0) / 56.0) {
+            @Override
+            protected void updateMessage() {
+                int v = (int) Math.round(8 + value * 56);
+                setMessage(Component.translatable("screen.seamlesslogin.pwgen_length").append(": " + v));
+            }
+            @Override
+            protected void applyValue() {
+                length = (int) Math.round(8 + value * 56);
+            }
+        };
+        addRenderableWidget(lengthSlider);
 
-        // Passphrase word count
-        wordCountField = new EditBox(font, cx + 4, y + ROW * 2, 60, FIELD_HEIGHT,
-                Component.translatable("screen.seamlesslogin.pwgen_words"));
-        wordCountField.setMaxLength(1);
-        wordCountField.setValue(String.valueOf(wordCount));
-        wordCountField.setFilter(s -> s.isEmpty() || s.matches("\\d+"));
-        addRenderableWidget(wordCountField);
+        // Passphrase word count slider (3–8)
+        wordCountSlider = new AbstractSliderButton(cx - FIELD_WIDTH / 2, y + ROW * 2, FIELD_WIDTH, FIELD_HEIGHT,
+                Component.translatable("screen.seamlesslogin.pwgen_words").append(": " + wordCount),
+                (wordCount - 3.0) / 5.0) {
+            @Override
+            protected void updateMessage() {
+                int v = (int) Math.round(3 + value * 5);
+                setMessage(Component.translatable("screen.seamlesslogin.pwgen_words").append(": " + v));
+            }
+            @Override
+            protected void applyValue() {
+                wordCount = (int) Math.round(3 + value * 5);
+            }
+        };
+        addRenderableWidget(wordCountSlider);
 
         // Capital letters toggle
         addRenderableWidget(Button.builder(
@@ -111,8 +124,8 @@ public class PasswordGenConfigScreen extends Screen {
     }
 
     private void updateFieldStates() {
-        if (lengthField   != null) lengthField.setEditable(!passphrase);
-        if (wordCountField != null) wordCountField.setEditable(passphrase);
+        if (lengthSlider    != null) lengthSlider.active    = !passphrase;
+        if (wordCountSlider != null) wordCountSlider.active = passphrase;
     }
 
     private Component passphraseLabel() {
@@ -127,51 +140,16 @@ public class PasswordGenConfigScreen extends Screen {
     }
 
     private void save() {
-        String lenStr  = lengthField.getValue().trim();
-        String wcStr   = wordCountField.getValue().trim();
-
-        int newLength;
-        int newWordCount;
-
-        try {
-            newLength = Integer.parseInt(lenStr);
-            if (newLength < 8 || newLength > 64) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            errorMessage = Component.translatable("screen.seamlesslogin.pwgen_length_invalid");
-            return;
-        }
-
-        try {
-            newWordCount = Integer.parseInt(wcStr);
-            if (newWordCount < 3 || newWordCount > 8) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            errorMessage = Component.translatable("screen.seamlesslogin.pwgen_words_invalid");
-            return;
-        }
-
-        Config.setPasswordGenConfig(passphrase, newLength, newWordCount, caps, numbers, special);
+        Config.setPasswordGenConfig(passphrase, length, wordCount, caps, numbers, special);
         minecraft.setScreen(previousScreen);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
-
         int cx = width / 2;
         int y  = height / 2 - (ROW * 5) / 2;
-
         graphics.drawCenteredString(font, title, cx, y - 24, 0xFFFFFFFF);
-
-        // Labels for the EditBox rows
-        int labelColor = 0xFFA0A0A0;
-        graphics.drawString(font, Component.translatable("screen.seamlesslogin.pwgen_length"),
-                cx - FIELD_WIDTH / 2, y + ROW + 4, passphrase ? 0xFF555555 : labelColor, false);
-        graphics.drawString(font, Component.translatable("screen.seamlesslogin.pwgen_words"),
-                cx - FIELD_WIDTH / 2, y + ROW * 2 + 4, passphrase ? labelColor : 0xFF555555, false);
-
-        if (errorMessage != null) {
-            graphics.drawCenteredString(font, errorMessage, cx, y + ROW * 6 + 32, 0xFFFF5555);
-        }
     }
 
     @Override
