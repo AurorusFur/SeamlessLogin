@@ -38,6 +38,11 @@ public class Config {
     public static int loginDelayTicks;
     public static List<? extends String> loginPatterns;
 
+    public static void setLoginPatterns(List<String> patterns) {
+        LOGIN_PATTERNS.set(patterns);
+        SPEC.save();
+    }
+
     static void onLoad(final ModConfigEvent event) {
         autoLoginEnabled = AUTO_LOGIN_ENABLED.get();
         loginCommandFormat = LOGIN_COMMAND_FORMAT.get();

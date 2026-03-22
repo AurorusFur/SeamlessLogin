@@ -7,11 +7,13 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import org.aurorus.seamlesslogin.client.ClientEventHandler;
 import org.aurorus.seamlesslogin.client.KeyBindings;
 import org.aurorus.seamlesslogin.event.AutoLoginHandler;
 import org.aurorus.seamlesslogin.password.PasswordManager;
+import org.aurorus.seamlesslogin.screen.PatternConfigScreen;
 import org.slf4j.Logger;
 
 @Mod(SeamlessLogin.MODID)
@@ -28,6 +30,8 @@ public class SeamlessLogin {
             NeoForge.EVENT_BUS.register(new AutoLoginHandler());
             NeoForge.EVENT_BUS.register(new ClientEventHandler());
             PasswordManager.getInstance();
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class,
+                    (container, screen) -> new PatternConfigScreen(screen));
         }
     }
 }

@@ -35,5 +35,20 @@
   "screen.seamlesslogin.overwrite_title": "Password Already Exists",
   "screen.seamlesslogin.overwrite_message": "A password for %s is already saved.\nDo you want to overwrite it?",
 
+  "screen.seamlesslogin.login_patterns": "Login Patterns",
+
+  "screen.seamlesslogin.patterns_title": "SeamlessLogin - Login Patterns",
+  "screen.seamlesslogin.no_patterns": "No patterns configured. Press \"Add New\" to add one.",
+
+  "screen.seamlesslogin.pattern_add_title": "Add Login Pattern",
+  "screen.seamlesslogin.pattern_edit_title": "Edit Login Pattern",
+  "screen.seamlesslogin.pattern_label": "Pattern (regex, case-insensitive)",
+  "screen.seamlesslogin.pattern_hint": "e.g. (?i).*please.*log.?in.*",
+  "screen.seamlesslogin.pattern_required": "Pattern cannot be empty!",
+  "screen.seamlesslogin.pattern_invalid": "Invalid regular expression!",
+
+  "screen.seamlesslogin.pattern_delete_title": "Remove Pattern?",
+  "screen.seamlesslogin.pattern_delete_message": "Are you sure you want to remove this login pattern?\n%s",
+
   "screen.seamlesslogin.entry_narration": "Server: %s, %s"
 }
