@@ -41,9 +41,9 @@ public class ClientEventHandler {
     public void onScreenInit(ScreenEvent.Init.Post event) {
         if (!(event.getScreen() instanceof JoinMultiplayerScreen screen)) return;
 
-        int btnWidth = 130;
+        int btnWidth = 100;
         int x = screen.width - 4 - btnWidth;
-        int y = screen.height - 28;
+        int y = 4;
 
         event.addListener(Button.builder(
                 Component.translatable("screen.seamlesslogin.title_short"),
