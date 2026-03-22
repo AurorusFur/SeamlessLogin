@@ -31,6 +31,10 @@ public class Config {
                     "(?i).*not logged in.*"
             ), obj -> obj instanceof String);
 
+    private static final ModConfigSpec.BooleanValue SKIP_PASSWORD_REUSE_WARNING = BUILDER
+            .comment("Do not show the password reuse warning when saving a password already used for another server")
+            .define("skipPasswordReuseWarning", false);
+
     private static final ModConfigSpec.BooleanValue USE_PASSPHRASE = BUILDER
             .comment("Generate passwords as passphrases (e.g. correct-horse-battery-staple)")
             .define("usePassphrase", false);
@@ -62,6 +66,8 @@ public class Config {
     public static int loginDelayTicks;
     public static List<? extends String> loginPatterns;
 
+    public static boolean skipPasswordReuseWarning;
+
     public static boolean usePassphrase;
     public static int passwordLength;
     public static int passphraseWordCount;
@@ -71,6 +77,11 @@ public class Config {
 
     public static void setLoginPatterns(List<String> patterns) {
         LOGIN_PATTERNS.set(patterns);
+        SPEC.save();
+    }
+
+    public static void setSkipPasswordReuseWarning(boolean skip) {
+        SKIP_PASSWORD_REUSE_WARNING.set(skip);
         SPEC.save();
     }
 
@@ -90,6 +101,8 @@ public class Config {
         loginCommandFormat = LOGIN_COMMAND_FORMAT.get();
         loginDelayTicks = LOGIN_DELAY_TICKS.get();
         loginPatterns = LOGIN_PATTERNS.get();
+
+        skipPasswordReuseWarning = SKIP_PASSWORD_REUSE_WARNING.get();
 
         usePassphrase = USE_PASSPHRASE.get();
         passwordLength = PASSWORD_LENGTH.get();

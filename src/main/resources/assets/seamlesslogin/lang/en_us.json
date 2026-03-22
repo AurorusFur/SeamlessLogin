@@ -69,5 +69,12 @@
   "screen.seamlesslogin.pattern_delete_title": "Remove Pattern?",
   "screen.seamlesslogin.pattern_delete_message": "Are you sure you want to remove this login pattern?\n%s",
 
+  "screen.seamlesslogin.reuse_title": "Password Reuse Detected",
+  "screen.seamlesslogin.reuse_line1": "This password is already saved for another server.",
+  "screen.seamlesslogin.reuse_line2": "Using the same password across multiple servers is a security risk.",
+  "screen.seamlesslogin.reuse_line3": "If one server is compromised, all others using this password are at risk.",
+  "screen.seamlesslogin.reuse_understood": "I understand what I am doing",
+  "screen.seamlesslogin.reuse_countdown": "Save unlocks in %s second(s)...",
+
   "screen.seamlesslogin.entry_narration": "Server: %s, %s"
 }

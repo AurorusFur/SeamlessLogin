@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import org.aurorus.seamlesslogin.password.PasswordGenerator;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.aurorus.seamlesslogin.Config;
 import org.aurorus.seamlesslogin.password.PasswordEntry;
 import org.aurorus.seamlesslogin.password.PasswordManager;
 
@@ -179,6 +180,15 @@ public class AddEditPasswordScreen extends Screen {
         }
         if (password.isEmpty()) {
             passwordField.setHint(Component.translatable("screen.seamlesslogin.password_required"));
+            return;
+        }
+
+        if (!Config.skipPasswordReuseWarning && PasswordManager.getInstance().isPasswordReused(server, password)) {
+            minecraft.setScreen(new PasswordReuseWarningScreen(this, () -> {
+                PasswordManager.getInstance().savePassword(server, name, password, autoLogin);
+                parent.refresh();
+                minecraft.setScreen(parent);
+            }));
             return;
         }
 
