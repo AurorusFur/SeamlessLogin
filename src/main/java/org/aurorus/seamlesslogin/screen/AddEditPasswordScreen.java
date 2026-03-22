@@ -3,14 +3,17 @@ package org.aurorus.seamlesslogin.screen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.aurorus.seamlesslogin.password.PasswordGenerator;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.aurorus.seamlesslogin.Config;
+import org.aurorus.seamlesslogin.client.SpriteIconButton;
 import org.aurorus.seamlesslogin.password.PasswordEntry;
+import org.aurorus.seamlesslogin.password.PasswordGenerator;
 import org.aurorus.seamlesslogin.password.PasswordManager;
 
 public class AddEditPasswordScreen extends Screen {
@@ -32,6 +35,16 @@ public class AddEditPasswordScreen extends Screen {
     private static final int FIELD_WIDTH = 200;
     private static final int FIELD_HEIGHT = 20;
     private static final int ROW = 30;
+
+    private static final ResourceLocation ICON_SHOW     = ResourceLocation.fromNamespaceAndPath("seamlesslogin", "show_password");
+    private static final ResourceLocation ICON_HIDE     = ResourceLocation.fromNamespaceAndPath("seamlesslogin", "hide_password");
+    private static final ResourceLocation ICON_GENERATE = ResourceLocation.fromNamespaceAndPath("seamlesslogin", "generate_password");
+    private static final ResourceLocation ICON_COPY     = ResourceLocation.fromNamespaceAndPath("seamlesslogin", "copy_password");
+
+    private SpriteIconButton showHideButton;
+
+    private Component feedbackMessage;
+    private long feedbackUntil;
 
     public AddEditPasswordScreen(PasswordManagerScreen parent, PasswordEntry existing) {
         this(parent, existing, null);
@@ -90,28 +103,45 @@ public class AddEditPasswordScreen extends Screen {
         addRenderableWidget(passwordField);
 
         // Show/hide password button
-        addRenderableWidget(Button.builder(
-                Component.translatable("screen.seamlesslogin.show_password"),
-                btn -> {
+        showHideButton = new SpriteIconButton(
+                cx + FIELD_WIDTH / 2 + 4, y + ROW * 2,
+                showPassword ? ICON_HIDE : ICON_SHOW,
+                Component.translatable(showPassword ? "screen.seamlesslogin.hide_password" : "screen.seamlesslogin.show_password"),
+                () -> {
                     showPassword = !showPassword;
                     updatePasswordFormatter();
-                    btn.setMessage(Component.translatable(showPassword
-                            ? "screen.seamlesslogin.hide_password"
-                            : "screen.seamlesslogin.show_password"));
-                }
-        ).bounds(cx + FIELD_WIDTH / 2 + 4, y + ROW * 2, 50, FIELD_HEIGHT).build());
+                    showHideButton.setIcon(showPassword ? ICON_HIDE : ICON_SHOW);
+                    Component label = Component.translatable(showPassword ? "screen.seamlesslogin.hide_password" : "screen.seamlesslogin.show_password");
+                    showHideButton.setMessage(label);
+                    showHideButton.setTooltip(Tooltip.create(label));
+                });
+        showHideButton.setTooltip(Tooltip.create(Component.translatable(
+                showPassword ? "screen.seamlesslogin.hide_password" : "screen.seamlesslogin.show_password")));
+        addRenderableWidget(showHideButton);
 
         // Generate password button
-        addRenderableWidget(Button.builder(
+        SpriteIconButton generateButton = new SpriteIconButton(
+                cx + FIELD_WIDTH / 2 + 28, y + ROW * 2,
+                ICON_GENERATE,
                 Component.translatable("screen.seamlesslogin.generate_password"),
-                btn -> passwordField.setValue(PasswordGenerator.generate())
-        ).bounds(cx + FIELD_WIDTH / 2 + 58, y + ROW * 2, 65, FIELD_HEIGHT).build());
+                () -> {
+                    passwordField.setValue(PasswordGenerator.generate());
+                    showFeedback("screen.seamlesslogin.feedback_generated");
+                });
+        generateButton.setTooltip(Tooltip.create(Component.translatable("screen.seamlesslogin.generate_password")));
+        addRenderableWidget(generateButton);
 
         // Copy password button
-        addRenderableWidget(Button.builder(
+        SpriteIconButton copyButton = new SpriteIconButton(
+                cx + FIELD_WIDTH / 2 + 52, y + ROW * 2,
+                ICON_COPY,
                 Component.translatable("screen.seamlesslogin.copy_password"),
-                btn -> minecraft.keyboardHandler.setClipboard(passwordField.getValue())
-        ).bounds(cx + FIELD_WIDTH / 2 + 127, y + ROW * 2, 50, FIELD_HEIGHT).build());
+                () -> {
+                    minecraft.keyboardHandler.setClipboard(passwordField.getValue());
+                    showFeedback("screen.seamlesslogin.feedback_copied");
+                });
+        copyButton.setTooltip(Tooltip.create(Component.translatable("screen.seamlesslogin.copy_password")));
+        addRenderableWidget(copyButton);
 
         // Auto-login toggle
         addRenderableWidget(Button.builder(
@@ -142,6 +172,11 @@ public class AddEditPasswordScreen extends Screen {
             passwordField.setFormatter((text, pos) ->
                     FormattedCharSequence.forward("*".repeat(text.length()), Style.EMPTY));
         }
+    }
+
+    private void showFeedback(String key) {
+        feedbackMessage = Component.translatable(key);
+        feedbackUntil   = System.currentTimeMillis() + 2000;
     }
 
     private Component getAutoLoginLabel() {
@@ -212,6 +247,15 @@ public class AddEditPasswordScreen extends Screen {
                 cx - FIELD_WIDTH / 2, y + ROW - 9, 0xFFA0A0A0, false);
         graphics.drawString(font, Component.translatable("screen.seamlesslogin.password"),
                 cx - FIELD_WIDTH / 2, y + ROW * 2 - 9, 0xFFA0A0A0, false);
+
+        if (feedbackMessage != null) {
+            long remaining = feedbackUntil - System.currentTimeMillis();
+            if (remaining > 0) {
+                int alpha = remaining < 800 ? (int) (remaining * 255 / 800) : 255;
+                graphics.drawCenteredString(font, feedbackMessage, cx, y + ROW * 4 + 26,
+                        (alpha << 24) | 0x0055FF55);
+            }
+        }
     }
 
     @Override
