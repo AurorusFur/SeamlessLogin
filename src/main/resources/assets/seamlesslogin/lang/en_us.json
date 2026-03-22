@@ -32,5 +32,8 @@
   "screen.seamlesslogin.delete_confirm_title": "Delete Password?",
   "screen.seamlesslogin.delete_confirm_message": "Are you sure you want to delete the saved password for\n%s?",
 
+  "screen.seamlesslogin.overwrite_title": "Password Already Exists",
+  "screen.seamlesslogin.overwrite_message": "A password for %s is already saved.\nDo you want to overwrite it?",
+
   "screen.seamlesslogin.entry_narration": "Server: %s, %s"
 }

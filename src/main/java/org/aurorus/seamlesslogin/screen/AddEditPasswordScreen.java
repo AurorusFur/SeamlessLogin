@@ -3,6 +3,7 @@ package org.aurorus.seamlesslogin.screen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -13,6 +14,7 @@ import org.aurorus.seamlesslogin.password.PasswordManager;
 public class AddEditPasswordScreen extends Screen {
     private final PasswordManagerScreen parent;
     private final PasswordEntry existing;
+    private final String prefillServer;
 
     private EditBox nameField;
     private EditBox serverField;
@@ -20,16 +22,26 @@ public class AddEditPasswordScreen extends Screen {
     private boolean autoLogin = true;
     private boolean showPassword = false;
 
+    // Preserved across re-init (e.g. returning from confirm dialog)
+    private String savedName;
+    private String savedServer;
+    private String savedPassword;
+
     private static final int FIELD_WIDTH = 200;
     private static final int FIELD_HEIGHT = 20;
     private static final int ROW = 30;
 
     public AddEditPasswordScreen(PasswordManagerScreen parent, PasswordEntry existing) {
+        this(parent, existing, null);
+    }
+
+    public AddEditPasswordScreen(PasswordManagerScreen parent, PasswordEntry existing, String prefillServer) {
         super(existing == null
                 ? Component.translatable("screen.seamlesslogin.add_title")
                 : Component.translatable("screen.seamlesslogin.edit_title"));
         this.parent = parent;
         this.existing = existing;
+        this.prefillServer = prefillServer;
     }
 
     @Override
@@ -42,7 +54,8 @@ public class AddEditPasswordScreen extends Screen {
                 Component.translatable("screen.seamlesslogin.name"));
         nameField.setMaxLength(64);
         nameField.setHint(Component.translatable("screen.seamlesslogin.name_hint"));
-        if (existing != null && existing.name != null) nameField.setValue(existing.name);
+        if (savedName != null) nameField.setValue(savedName);
+        else if (existing != null && existing.name != null) nameField.setValue(existing.name);
         addRenderableWidget(nameField);
 
         // Server address field
@@ -53,6 +66,10 @@ public class AddEditPasswordScreen extends Screen {
         if (existing != null) {
             serverField.setValue(existing.server);
             serverField.setEditable(false);
+        } else if (savedServer != null) {
+            serverField.setValue(savedServer);
+        } else if (prefillServer != null) {
+            serverField.setValue(prefillServer);
         }
         addRenderableWidget(serverField);
 
@@ -61,7 +78,9 @@ public class AddEditPasswordScreen extends Screen {
                 Component.translatable("screen.seamlesslogin.password"));
         passwordField.setMaxLength(128);
         passwordField.setHint(Component.translatable("screen.seamlesslogin.password_hint"));
-        if (existing != null) {
+        if (savedPassword != null) {
+            passwordField.setValue(savedPassword);
+        } else if (existing != null) {
             PasswordManager.getInstance().getPassword(existing.server).ifPresent(passwordField::setValue);
             autoLogin = existing.autoLogin;
         }
@@ -126,6 +145,25 @@ public class AddEditPasswordScreen extends Screen {
             serverField.setHint(Component.translatable("screen.seamlesslogin.server_required"));
             return;
         }
+        if (existing == null && PasswordManager.getInstance().hasPassword(server)) {
+            savedName = name;
+            savedServer = server;
+            savedPassword = password;
+            minecraft.setScreen(new ConfirmScreen(
+                    confirmed -> {
+                        if (confirmed) {
+                            PasswordManager.getInstance().savePassword(server, name, password, autoLogin);
+                            parent.refresh();
+                            minecraft.setScreen(parent);
+                        } else {
+                            minecraft.setScreen(this);
+                        }
+                    },
+                    Component.translatable("screen.seamlesslogin.overwrite_title"),
+                    Component.translatable("screen.seamlesslogin.overwrite_message", server)
+            ));
+            return;
+        }
         if (password.isEmpty()) {
             passwordField.setHint(Component.translatable("screen.seamlesslogin.password_required"));
             return;
@@ -143,7 +181,7 @@ public class AddEditPasswordScreen extends Screen {
         int cx = width / 2;
         int y = height / 2 - 75;
 
-        graphics.drawCenteredString(font, title, cx, y - 16, 0xFFFFFFFF);
+        graphics.drawCenteredString(font, title, cx, y - 24, 0xFFFFFFFF);
 
         graphics.drawString(font, Component.translatable("screen.seamlesslogin.name"),
                 cx - FIELD_WIDTH / 2, y - 9, 0xFFA0A0A0, false);

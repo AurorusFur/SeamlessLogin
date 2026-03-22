@@ -7,6 +7,9 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import org.aurorus.seamlesslogin.password.PasswordEntry;
+import org.aurorus.seamlesslogin.password.PasswordManager;
+import org.aurorus.seamlesslogin.screen.AddEditPasswordScreen;
 import org.aurorus.seamlesslogin.screen.PasswordManagerScreen;
 
 public class ClientEventHandler {
@@ -17,7 +20,20 @@ public class ClientEventHandler {
         if (mc.screen != null) return;
 
         while (KeyBindings.OPEN_PASSWORD_MANAGER.consumeClick()) {
-            mc.setScreen(new PasswordManagerScreen(null));
+            PasswordManagerScreen manager = new PasswordManagerScreen(null);
+            if (mc.getCurrentServer() != null) {
+                String ip = mc.getCurrentServer().ip;
+                PasswordEntry existing = PasswordManager.getInstance().getEntries().stream()
+                        .filter(e -> e.server.equals(PasswordManager.normalizeServer(ip)))
+                        .findFirst().orElse(null);
+                if (existing != null) {
+                    mc.setScreen(new AddEditPasswordScreen(manager, existing));
+                } else {
+                    mc.setScreen(new AddEditPasswordScreen(manager, null, ip));
+                }
+            } else {
+                mc.setScreen(manager);
+            }
         }
     }
 
