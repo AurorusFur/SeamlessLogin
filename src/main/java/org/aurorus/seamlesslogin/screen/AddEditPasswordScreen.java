@@ -33,6 +33,9 @@ public class AddEditPasswordScreen extends Screen {
     private static final int FIELD_HEIGHT = 20;
     private static final int ROW = 30;
 
+    private Component feedbackMessage;
+    private long feedbackUntil;
+
     public AddEditPasswordScreen(PasswordManagerScreen parent, PasswordEntry existing) {
         this(parent, existing, null);
     }
@@ -104,13 +107,19 @@ public class AddEditPasswordScreen extends Screen {
         // Generate password button
         addRenderableWidget(Button.builder(
                 Component.translatable("screen.seamlesslogin.generate_password"),
-                btn -> passwordField.setValue(PasswordGenerator.generate())
+                btn -> {
+                    passwordField.setValue(PasswordGenerator.generate());
+                    showFeedback("screen.seamlesslogin.feedback_generated");
+                }
         ).bounds(cx + FIELD_WIDTH / 2 + 58, y + ROW * 2, 65, FIELD_HEIGHT).build());
 
         // Copy password button
         addRenderableWidget(Button.builder(
                 Component.translatable("screen.seamlesslogin.copy_password"),
-                btn -> minecraft.keyboardHandler.setClipboard(passwordField.getValue())
+                btn -> {
+                    minecraft.keyboardHandler.setClipboard(passwordField.getValue());
+                    showFeedback("screen.seamlesslogin.feedback_copied");
+                }
         ).bounds(cx + FIELD_WIDTH / 2 + 127, y + ROW * 2, 50, FIELD_HEIGHT).build());
 
         // Auto-login toggle
@@ -142,6 +151,11 @@ public class AddEditPasswordScreen extends Screen {
             passwordField.setFormatter((text, pos) ->
                     FormattedCharSequence.forward("*".repeat(text.length()), Style.EMPTY));
         }
+    }
+
+    private void showFeedback(String key) {
+        feedbackMessage = Component.translatable(key);
+        feedbackUntil   = System.currentTimeMillis() + 2000;
     }
 
     private Component getAutoLoginLabel() {
@@ -212,6 +226,15 @@ public class AddEditPasswordScreen extends Screen {
                 cx - FIELD_WIDTH / 2, y + ROW - 9, 0xFFA0A0A0, false);
         graphics.drawString(font, Component.translatable("screen.seamlesslogin.password"),
                 cx - FIELD_WIDTH / 2, y + ROW * 2 - 9, 0xFFA0A0A0, false);
+
+        if (feedbackMessage != null) {
+            long remaining = feedbackUntil - System.currentTimeMillis();
+            if (remaining > 0) {
+                int alpha = remaining < 800 ? (int) (remaining * 255 / 800) : 255;
+                graphics.drawCenteredString(font, feedbackMessage, cx, y + ROW * 4 + 26,
+                        (alpha << 24) | 0x0055FF55);
+            }
+        }
     }
 
     @Override

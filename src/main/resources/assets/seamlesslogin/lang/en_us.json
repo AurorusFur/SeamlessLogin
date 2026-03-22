@@ -44,6 +44,8 @@
 
   "screen.seamlesslogin.generate_password": "Generate",
   "screen.seamlesslogin.copy_password": "Copy",
+  "screen.seamlesslogin.feedback_generated": "Password generated!",
+  "screen.seamlesslogin.feedback_copied": "Password copied to clipboard!",
 
   "screen.seamlesslogin.pwgen_title": "Password Generation",
   "screen.seamlesslogin.pwgen_passphrase_on":  "Mode: Passphrase",
