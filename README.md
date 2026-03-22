@@ -1,6 +1,20 @@
 # SeamlessLogin
 
-A NeoForge client-side mod for Minecraft 1.21.8 that automatically logs you in to offline-mode servers. Passwords are stored encrypted on disk and sent when a login prompt is detected in chat.
+A NeoForge client-side mod for Minecraft 1.21.8 that automatically logs you in to offline-mode servers.
+
+## Screenshots
+
+![Password Manager](presentation/passwordmanager.png)
+*Saved server passwords with edit and delete controls*
+
+![Add Server Password](presentation/newpassword.png)
+*Add or edit a password entry with show/hide, generate, and copy controls*
+
+![Password Generation Settings](presentation/passwordmanagersettings.png)
+*Password generation configuration — mode, length, and character set options*
+
+![Login Patterns](presentation/patternsmenu.png)
+*Configurable regex patterns that trigger auto-login* Passwords are stored encrypted on disk and sent when a login prompt is detected in chat.
 
 ---
 
