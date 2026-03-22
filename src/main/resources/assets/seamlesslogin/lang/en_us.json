@@ -1,0 +1,36 @@
+{
+  "key.categories.seamlesslogin": "SeamlessLogin",
+  "key.seamlesslogin.open_password_manager": "Open Password Manager",
+
+  "screen.seamlesslogin.title": "SeamlessLogin - Password Manager",
+  "screen.seamlesslogin.title_short": "Passwords",
+  "screen.seamlesslogin.add_title": "Add Server Password",
+  "screen.seamlesslogin.edit_title": "Edit Server Password",
+  "screen.seamlesslogin.no_entries": "No saved passwords. Press \"Add New\" to get started.",
+
+  "screen.seamlesslogin.name": "Server Name",
+  "screen.seamlesslogin.name_hint": "e.g. My Survival Server",
+
+  "screen.seamlesslogin.server": "Server Address",
+  "screen.seamlesslogin.server_hint": "e.g. play.example.com",
+  "screen.seamlesslogin.server_required": "Server address is required!",
+  "screen.seamlesslogin.password": "Password",
+  "screen.seamlesslogin.password_hint": "Enter your password",
+  "screen.seamlesslogin.password_required": "Password is required!",
+
+  "screen.seamlesslogin.add": "Add New",
+  "screen.seamlesslogin.edit": "Edit",
+  "screen.seamlesslogin.delete": "Delete",
+  "screen.seamlesslogin.save": "Save",
+
+  "screen.seamlesslogin.show_password": "Show",
+  "screen.seamlesslogin.hide_password": "Hide",
+
+  "screen.seamlesslogin.autologin_on": "● Auto-Login: ON",
+  "screen.seamlesslogin.autologin_off": "○ Auto-Login: OFF",
+
+  "screen.seamlesslogin.delete_confirm_title": "Delete Password?",
+  "screen.seamlesslogin.delete_confirm_message": "Are you sure you want to delete the saved password for\n%s?",
+
+  "screen.seamlesslogin.entry_narration": "Server: %s, %s"
+}

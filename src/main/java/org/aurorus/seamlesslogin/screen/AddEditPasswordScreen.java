@@ -1,0 +1,160 @@
+package org.aurorus.seamlesslogin.screen;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
+import org.aurorus.seamlesslogin.password.PasswordEntry;
+import org.aurorus.seamlesslogin.password.PasswordManager;
+
+public class AddEditPasswordScreen extends Screen {
+    private final PasswordManagerScreen parent;
+    private final PasswordEntry existing;
+
+    private EditBox nameField;
+    private EditBox serverField;
+    private EditBox passwordField;
+    private boolean autoLogin = true;
+    private boolean showPassword = false;
+
+    private static final int FIELD_WIDTH = 200;
+    private static final int FIELD_HEIGHT = 20;
+    private static final int ROW = 30;
+
+    public AddEditPasswordScreen(PasswordManagerScreen parent, PasswordEntry existing) {
+        super(existing == null
+                ? Component.translatable("screen.seamlesslogin.add_title")
+                : Component.translatable("screen.seamlesslogin.edit_title"));
+        this.parent = parent;
+        this.existing = existing;
+    }
+
+    @Override
+    protected void init() {
+        int cx = width / 2;
+        int y = height / 2 - 75;
+
+        // Server name field
+        nameField = new EditBox(font, cx - FIELD_WIDTH / 2, y, FIELD_WIDTH, FIELD_HEIGHT,
+                Component.translatable("screen.seamlesslogin.name"));
+        nameField.setMaxLength(64);
+        nameField.setHint(Component.translatable("screen.seamlesslogin.name_hint"));
+        if (existing != null && existing.name != null) nameField.setValue(existing.name);
+        addRenderableWidget(nameField);
+
+        // Server address field
+        serverField = new EditBox(font, cx - FIELD_WIDTH / 2, y + ROW, FIELD_WIDTH, FIELD_HEIGHT,
+                Component.translatable("screen.seamlesslogin.server"));
+        serverField.setMaxLength(256);
+        serverField.setHint(Component.translatable("screen.seamlesslogin.server_hint"));
+        if (existing != null) {
+            serverField.setValue(existing.server);
+            serverField.setEditable(false);
+        }
+        addRenderableWidget(serverField);
+
+        // Password field
+        passwordField = new EditBox(font, cx - FIELD_WIDTH / 2, y + ROW * 2, FIELD_WIDTH, FIELD_HEIGHT,
+                Component.translatable("screen.seamlesslogin.password"));
+        passwordField.setMaxLength(128);
+        passwordField.setHint(Component.translatable("screen.seamlesslogin.password_hint"));
+        if (existing != null) {
+            PasswordManager.getInstance().getPassword(existing.server).ifPresent(passwordField::setValue);
+            autoLogin = existing.autoLogin;
+        }
+        updatePasswordFormatter();
+        addRenderableWidget(passwordField);
+
+        // Show/hide password button
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.show_password"),
+                btn -> {
+                    showPassword = !showPassword;
+                    updatePasswordFormatter();
+                    btn.setMessage(Component.translatable(showPassword
+                            ? "screen.seamlesslogin.hide_password"
+                            : "screen.seamlesslogin.show_password"));
+                }
+        ).bounds(cx + FIELD_WIDTH / 2 + 4, y + ROW * 2, 50, FIELD_HEIGHT).build());
+
+        // Auto-login toggle
+        addRenderableWidget(Button.builder(
+                getAutoLoginLabel(),
+                btn -> {
+                    autoLogin = !autoLogin;
+                    btn.setMessage(getAutoLoginLabel());
+                }
+        ).bounds(cx - FIELD_WIDTH / 2, y + ROW * 3, FIELD_WIDTH, FIELD_HEIGHT).build());
+
+        // Save / Cancel
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.save"),
+                btn -> save()
+        ).bounds(cx - 105, y + ROW * 4, 100, 20).build());
+
+        addRenderableWidget(Button.builder(
+                Component.translatable("gui.cancel"),
+                btn -> minecraft.setScreen(parent)
+        ).bounds(cx + 5, y + ROW * 4, 100, 20).build());
+    }
+
+    private void updatePasswordFormatter() {
+        if (showPassword) {
+            passwordField.setFormatter((text, pos) ->
+                    FormattedCharSequence.forward(text, Style.EMPTY));
+        } else {
+            passwordField.setFormatter((text, pos) ->
+                    FormattedCharSequence.forward("*".repeat(text.length()), Style.EMPTY));
+        }
+    }
+
+    private Component getAutoLoginLabel() {
+        return autoLogin
+                ? Component.translatable("screen.seamlesslogin.autologin_on")
+                : Component.translatable("screen.seamlesslogin.autologin_off");
+    }
+
+    private void save() {
+        String name = nameField.getValue().trim();
+        String server = serverField.getValue().trim();
+        String password = passwordField.getValue();
+
+        if (server.isEmpty()) {
+            serverField.setHint(Component.translatable("screen.seamlesslogin.server_required"));
+            return;
+        }
+        if (password.isEmpty()) {
+            passwordField.setHint(Component.translatable("screen.seamlesslogin.password_required"));
+            return;
+        }
+
+        PasswordManager.getInstance().savePassword(server, name, password, autoLogin);
+        parent.refresh();
+        minecraft.setScreen(parent);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+
+        int cx = width / 2;
+        int y = height / 2 - 75;
+
+        graphics.drawCenteredString(font, title, cx, y - 16, 0xFFFFFFFF);
+
+        graphics.drawString(font, Component.translatable("screen.seamlesslogin.name"),
+                cx - FIELD_WIDTH / 2, y - 9, 0xFFA0A0A0, false);
+        graphics.drawString(font, Component.translatable("screen.seamlesslogin.server"),
+                cx - FIELD_WIDTH / 2, y + ROW - 9, 0xFFA0A0A0, false);
+        graphics.drawString(font, Component.translatable("screen.seamlesslogin.password"),
+                cx - FIELD_WIDTH / 2, y + ROW * 2 - 9, 0xFFA0A0A0, false);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+}
