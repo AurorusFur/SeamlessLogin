@@ -144,6 +144,20 @@ public class PasswordManager {
         return Collections.unmodifiableList(entries);
     }
 
+    /** Returns true if {@code plainPassword} is already stored for a different server. */
+    public boolean isPasswordReused(String server, String plainPassword) {
+        String key = normalizeServer(server);
+        for (PasswordEntry entry : entries) {
+            if (entry.server.equals(key)) continue;
+            try {
+                if (EncryptionUtil.decrypt(entry.encryptedPassword, encryptionKey).equals(plainPassword)) {
+                    return true;
+                }
+            } catch (Exception ignored) {}
+        }
+        return false;
+    }
+
     /**
      * Normalises a server address to the canonical form "host:port" (lowercase).
      *

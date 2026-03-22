@@ -6,8 +6,10 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.aurorus.seamlesslogin.password.PasswordGenerator;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.aurorus.seamlesslogin.Config;
 import org.aurorus.seamlesslogin.password.PasswordEntry;
 import org.aurorus.seamlesslogin.password.PasswordManager;
 
@@ -99,6 +101,18 @@ public class AddEditPasswordScreen extends Screen {
                 }
         ).bounds(cx + FIELD_WIDTH / 2 + 4, y + ROW * 2, 50, FIELD_HEIGHT).build());
 
+        // Generate password button
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.generate_password"),
+                btn -> passwordField.setValue(PasswordGenerator.generate())
+        ).bounds(cx + FIELD_WIDTH / 2 + 58, y + ROW * 2, 65, FIELD_HEIGHT).build());
+
+        // Copy password button
+        addRenderableWidget(Button.builder(
+                Component.translatable("screen.seamlesslogin.copy_password"),
+                btn -> minecraft.keyboardHandler.setClipboard(passwordField.getValue())
+        ).bounds(cx + FIELD_WIDTH / 2 + 127, y + ROW * 2, 50, FIELD_HEIGHT).build());
+
         // Auto-login toggle
         addRenderableWidget(Button.builder(
                 getAutoLoginLabel(),
@@ -166,6 +180,15 @@ public class AddEditPasswordScreen extends Screen {
         }
         if (password.isEmpty()) {
             passwordField.setHint(Component.translatable("screen.seamlesslogin.password_required"));
+            return;
+        }
+
+        if (!Config.skipPasswordReuseWarning && PasswordManager.getInstance().isPasswordReused(server, password)) {
+            minecraft.setScreen(new PasswordReuseWarningScreen(this, () -> {
+                PasswordManager.getInstance().savePassword(server, name, password, autoLogin);
+                parent.refresh();
+                minecraft.setScreen(parent);
+            }));
             return;
         }
 
